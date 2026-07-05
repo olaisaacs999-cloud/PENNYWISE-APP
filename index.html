@@ -1435,5 +1435,12 @@ function rateStar(n){
   document.getElementById('rateFeedback').textContent=msgs[n];
 }
 </script>
+  
+//Auto-navigate to screen fromURL parameter
+  (function(){
+  const p = new urlsearchparams(window.location.search).get('screen'); 
+  if(p) 
+  goTo(p);
+  })();
 </body>
 </html>
