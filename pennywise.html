@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pennywise</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400;12..96,75..100,600;12..96,75..100,700;12..96,75..100,800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1B2A;
+  --lime:#B5FF4D;
+  --white:#F8FAF5;
+  --charcoal:#6B7280;
+  --red:#EF4444;
+  --mid-grey:#9CA3AF;
+  --surface:#FFFFFF;
+  --border:#CBD5E1;
+  --bg:#F1F5F9;
+}
+html,body{width:100%;min-height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--navy);overflow-x:hidden}
+
+/* ── DOODLE BG ── */
+.doodle-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.doodle-bg svg{width:100%;height:100%}
+
+/* ── SHELL ── */
+.app{position:relative;z-index:1;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 100px}
+.card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:36px 32px 40px;box-shadow:0 8px 40px rgba(13,27,42,0.10)}
+
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{display:block;animation:fadeUp 0.3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── WELCOME ── */
+.welcome-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--navy);margin-bottom:48px;display:flex;align-items:center;gap:8px}
+.welcome-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--lime);display:inline-block;border:2px solid var(--navy)}
+.welcome-headline{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(36px,8vw,52px);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin-bottom:16px;color:var(--navy)}
+.welcome-headline em{color:var(--navy);font-style:normal;display:block;background:var(--lime);display:inline;padding:0 4px;border-radius:4px}
+.welcome-sub{font-size:15px;color:var(--charcoal);line-height:1.6;margin-bottom:48px;max-width:300px}
+
+/* ── TYPOGRAPHY ── */
+.screen-title{font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1.2;margin-bottom:6px;color:var(--navy)}
+.screen-sub{font-size:14px;color:var(--charcoal);margin-bottom:24px;line-height:1.5}
+
+/* ── STEP INDICATOR ── */
+.step-indicator{display:flex;gap:6px;margin-bottom:28px}
+.step-dot{height:4px;border-radius:2px;background:var(--border);flex:1;transition:background .3s}
+.step-dot.done{background:var(--navy)}
+.step-dot.active{background:rgba(13,27,42,0.4)}
+
+/* ── BACK BTN ── */
+.btn-back{background:none;border:none;color:var(--charcoal);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;padding:4px 0;margin-bottom:18px;display:flex;align-items:center;gap:6px;transition:color .2s}
+.btn-back:hover{color:var(--navy)}
+.btn-back svg{width:16px;height:16px}
+
+/* ── FORM ── */
+.field{margin-bottom:18px}
+.field-label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--charcoal);margin-bottom:8px;display:block}
+.field-hint{font-size:12px;color:var(--charcoal);margin-bottom:8px}
+
+input[type="text"],input[type="email"],input[type="tel"],input[type="date"],input[type="password"]{
+  width:100%;background:#F8FAFC;border:1.5px solid var(--border);border-radius:14px;padding:14px 18px;
+  font-family:'DM Sans',sans-serif;font-size:15px;color:var(--navy);outline:none;
+  transition:border-color .2s,background .2s;-webkit-appearance:none;appearance:none
+}
+input::-webkit-calendar-picker-indicator{opacity:.5}
+input::placeholder{color:#94A3B8}
+input:focus{border-color:var(--navy);background:#fff}
+input.error-state{border-color:var(--red);background:#FEF2F2}
+.error-msg{font-size:12px;color:var(--red);margin-top:6px;display:none}
+.error-msg.visible{display:block}
+
+/* ── GENDER PILLS ── */
+.gender-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gender-option{background:#F8FAFC;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:500;color:var(--charcoal);cursor:pointer;transition:all .2s;text-align:center;user-select:none}
+.gender-option.selected{border-color:var(--navy);color:var(--navy);background:#EFF6FF}
+.gender-other-input{margin-top:10px;display:none}
+.gender-other-input.visible{display:block}
+
+/* ── PASSWORD STRENGTH ── */
+.pw-rules{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pw-rule{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--charcoal);transition:color .2s}
+.pw-rule.met{color:#16A34A}
+.pw-rule-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* ── PASSCODE BOXES ── */
+.passcode-grid{display:flex;gap:12px;justify-content:center;margin:16px 0}
+.pc-box{width:60px;height:60px;border-radius:14px;background:#F8FAFC;border:1.5px solid var(--border);font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;color:var(--navy);text-align:center;outline:none;transition:border-color .2s;caret-color:var(--navy)}
+.pc-box:focus{border-color:var(--navy);background:#fff}
+.pc-box.error-state{border-color:var(--red);background:#FEF2F2}
+
+/* ── PHONE ── */
+.phone-wrap{display:flex;background:#F8FAFC;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.phone-wrap:focus-within{border-color:var(--navy);background:#fff}
+.phone-wrap.error-state{border-color:var(--red)}
+.phone-prefix{padding:14px 12px 14px 18px;font-size:15px;color:var(--charcoal);border-right:1.5px solid var(--border);white-space:nowrap;flex-shrink:0}
+.phone-wrap input{border:none!important;background:transparent!important;border-radius:0!important;flex:1}
+.phone-wrap input:focus{border-color:transparent!important;background:transparent!important}
+
+/* ── NAIRA INPUT ── */
+.naira-wrap{display:flex;background:#F8FAFC;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.naira-wrap:focus-within{border-color:var(--navy);background:#fff}
+.naira-wrap.error-state{border-color:var(--red)}
+.naira-prefix{padding:14px 8px 14px 18px;font-size:16px;color:var(--navy);font-weight:700;flex-shrink:0}
+.naira-wrap input{border:none!important;background:transparent!important;border-radius:0!important;flex:1;padding-left:2px!important}
+.naira-wrap input:focus{border-color:transparent!important;background:transparent!important}
+
+/* ── RADIO TOGGLE (frequency) ── */
+.freq-group{margin-top:10px}
+.freq-label-txt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--charcoal);margin-bottom:8px;display:block}
+.freq-row{display:flex;gap:8px}
+.freq-opt{flex:1;position:relative}
+.freq-opt input[type="radio"]{position:absolute;opacity:0;width:0;height:0}
+.freq-opt label{display:block;padding:10px 6px;border-radius:10px;border:1.5px solid var(--border);background:#F8FAFC;font-size:13px;font-weight:500;color:var(--charcoal);text-align:center;cursor:pointer;transition:all .2s;user-select:none}
+.freq-opt input[type="radio"]:checked + label{border-color:var(--navy);color:var(--navy);background:#EFF6FF;font-weight:600}
+.freq-opt label:hover{border-color:#94A3B8}
+.freq-error{font-size:12px;color:var(--red);margin-top:6px;display:none}
+.freq-error.visible{display:block}
+
+/* ── CHOICE BUTTONS ── */
+.choice-row{display:flex;gap:10px}
+.choice-btn{flex:1;padding:13px 10px;border-radius:12px;border:1.5px solid var(--border);background:#F8FAFC;color:var(--charcoal);font-size:14px;font-weight:500;text-align:center;cursor:pointer;transition:all .2s}
+.choice-btn.selected{border-color:var(--navy);color:var(--navy);background:#EFF6FF}
+
+/* ── BUTTONS ── */
+.btn-primary{width:100%;background:var(--navy);color:var(--lime);border:none;border-radius:14px;padding:16px 24px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.01em;transition:background .2s,transform .1s,box-shadow .2s;margin-top:8px}
+.btn-primary:hover{background:#1a3050;box-shadow:0 8px 24px rgba(13,27,42,0.18)}
+.btn-primary:active{transform:scale(.98)}
+.btn-ghost{width:100%;background:transparent;border:1.5px solid var(--border);border-radius:14px;padding:15px 24px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;color:var(--navy);cursor:pointer;margin-top:10px;transition:border-color .2s}
+.btn-ghost:hover{border-color:var(--navy)}
+.btn-add{width:100%;background:transparent;border:1.5px dashed var(--border);border-radius:12px;color:var(--charcoal);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:12px;cursor:pointer;margin-bottom:20px;transition:all .2s}
+.btn-add:hover{border-color:var(--navy);color:var(--navy)}
+
+.signin-link{text-align:center;font-size:13px;color:var(--charcoal);margin-top:20px}
+.signin-link a{color:var(--navy);text-decoration:none;font-weight:700}
+
+/* ── SIGN IN EXTRAS ── */
+.forgot-link{text-align:right;font-size:13px;margin:-6px 0 4px}
+.forgot-link a{color:var(--navy);text-decoration:none;font-weight:600}
+.forgot-link a:hover{text-decoration:underline}
+.or-divider{display:flex;align-items:center;gap:12px;margin:22px 0 16px;color:var(--charcoal);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.social-login{display:flex;flex-direction:column;gap:10px}
+.btn-social{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#F8FAFC;border:1.5px solid var(--border);border-radius:14px;padding:13px 18px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--navy);cursor:pointer;transition:border-color .2s,background .2s,transform .1s}
+.btn-social:hover{border-color:var(--navy);background:#fff}
+.btn-social:active{transform:scale(.98)}
+.btn-social svg{width:20px;height:20px;flex-shrink:0}
+.btn-ghost{width:100%;background:none;border:none;color:var(--charcoal);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;padding:12px;margin-top:6px;transition:color .2s}
+.btn-ghost:hover{color:var(--navy)}
+
+/* ── POPUP ── */
+.popup-overlay{position:fixed;inset:0;z-index:50;background:rgba(13,27,42,0.55);display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(3px)}
+.popup-overlay.open{display:flex;animation:fadeIn .2s ease both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.popup-card{position:relative;width:100%;max-width:360px;background:var(--surface);border-radius:24px;padding:36px 28px 28px;text-align:center;box-shadow:0 20px 60px rgba(13,27,42,0.3);animation:fadeUp .25s ease both}
+.popup-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:26px;line-height:1;color:var(--charcoal);cursor:pointer;transition:color .2s}
+.popup-close:hover{color:var(--navy)}
+.popup-icon{width:56px;height:56px;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--navy)}
+.popup-icon svg{width:26px;height:26px}
+.popup-title{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.popup-text{font-size:14px;color:var(--charcoal);line-height:1.6;margin-bottom:20px}
+.popup-text strong{color:var(--navy)}
+
+/* ── SUCCESS ── */
+.success-icon{width:72px;height:72px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+.success-icon svg{width:36px;height:36px}
+.success-title{font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:800;text-align:center;line-height:1.2;margin-bottom:12px;color:var(--navy)}
+.success-sub{font-size:14px;color:var(--charcoal);text-align:center;line-height:1.6;margin-bottom:36px}
+
+/* ── BUDGET SCREENS ── */
+.budget-section-label{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.budget-notice{font-size:13px;color:var(--charcoal);background:#F1F5F9;border-radius:10px;padding:10px 14px;margin-bottom:20px;border-left:3px solid var(--navy)}
+
+/* ── OTHER EXPENSES ── */
+.other-row{display:flex;gap:10px;margin-bottom:12px}
+
+/* ── ANALYSIS ── */
+.analysis-income-line{font-size:16px;line-height:1.6;color:var(--navy);margin-bottom:6px}
+.pie-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;margin:20px 0}
+.pie-legend{width:100%;display:flex;flex-direction:column;gap:8px}
+.legend-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--charcoal);cursor:pointer;padding:6px 10px;border-radius:8px;transition:background .2s}
+.legend-item:hover{background:#F1F5F9}
+.legend-item.highlighted{background:#EFF6FF;font-weight:600;color:var(--navy)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.analysis-section-title{font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:12px}
+.spender-list{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+.spender-row{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:10px 14px;background:#F8FAFC;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:background .2s}
+.spender-row:hover{background:#EFF6FF}
+.spender-row.highlighted{background:#DBEAFE;border-color:#93C5FD}
+.spender-amt{color:var(--navy);font-weight:600}
+.reco-text{font-size:14px;line-height:1.7;color:var(--charcoal);margin-bottom:6px}
+.lime-link{color:var(--navy);text-decoration:underline;font-weight:600;cursor:pointer}
+.reco-note{font-size:12px;color:#94A3B8;margin-bottom:20px}
+.analysis-cta-label{font-size:14px;color:var(--charcoal);margin-bottom:8px}
+
+/* ── SAVINGS ── */
+.savings-icon{width:64px;height:64px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 0 24px}
+.savings-icon svg{width:32px;height:32px}
+.savings-body{font-size:15px;color:var(--charcoal);line-height:1.7;margin-bottom:36px}
+
+/* ── GOAL OPTIONS ── */
+.goal-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.goal-option{padding:16px 18px;border-radius:14px;border:1.5px solid var(--border);background:#F8FAFC;font-size:15px;font-weight:500;color:var(--charcoal);cursor:pointer;transition:all .2s}
+.goal-option.selected{border-color:var(--navy);color:var(--navy);background:#EFF6FF;font-weight:600}
+
+/* ── PASSWORD TOGGLE ── */
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:46px!important;width:100%}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:var(--charcoal);display:flex;align-items:center}
+.pw-toggle svg{width:20px;height:20px}
+.pw-toggle:hover{color:var(--navy)}
+
+/* ── SELECTS ── */
+select{width:100%;background:#F8FAFC;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230D1B2A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:16px;cursor:pointer}
+select:focus{border-color:var(--navy);background-color:#fff}
+select.error-state{border-color:var(--red)}
+.other-freq-select{border-radius:14px;font-size:13px;padding:12px 34px 12px 12px;background-position:right 10px center}
+.other-row{align-items:flex-start}
+.other-row .of-wrap{flex:0 0 108px}
+
+/* ── BUDGET SECTIONS (single page) ── */
+.budget-block{padding-top:18px;margin-top:18px;border-top:1px dashed var(--border)}
+.budget-block:first-of-type{border-top:none;margin-top:0;padding-top:0}
+
+/* ── DAY NOTICE ── */
+.day-notice{display:flex;gap:12px;align-items:flex-start;background:#F8FAFC;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:28px}
+.day-notice svg{width:18px;height:18px;flex-shrink:0;color:var(--navy);margin-top:2px}
+.day-notice p{font-size:13px;color:var(--charcoal);line-height:1.5;margin:0}
+
+/* ── WHY CARD (LOADING + TRUST) ── */
+.why-loading{display:none;flex-direction:column;align-items:center;justify-content:center;padding:80px 0;text-align:center}
+.why-loading.show{display:flex}
+.why-spinner{width:44px;height:44px;border-radius:50%;border:4px solid var(--border);border-top-color:var(--navy);animation:whySpin .8s linear infinite;margin-bottom:18px}
+@keyframes whySpin{to{transform:rotate(360deg)}}
+.why-loading-text{font-size:14px;color:var(--charcoal)}
+.why-content{display:none}
+.why-content.show{display:block;animation:fadeUp .3s ease both}
+.why-icon{width:56px;height:56px;border-radius:16px;background:var(--lime);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.why-icon svg{width:28px;height:28px;color:var(--navy)}
+.why-note{display:flex;gap:12px;align-items:flex-start;background:#F8FAFC;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:28px}
+.why-note svg{width:18px;height:18px;flex-shrink:0;color:var(--navy);margin-top:2px}
+.why-note p{font-size:13px;color:var(--charcoal);line-height:1.5;margin:0}
+
+/* ── CARD LINKING ── */
+.card-field-row{display:flex;gap:12px;align-items:center}
+.card-field-row input{flex:1}
+.card-hint-img{flex-shrink:0;width:80px}
+.card-hint-img svg{width:80px;border-radius:6px}
+
+/* ── OB GREETING ── */
+.ob-greeting{font-size:14px;color:var(--charcoal);margin-bottom:6px}
+.lime{color:var(--navy);font-weight:700}
+
+/* ── HOME SCREEN ── */
+.home-greeting{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;margin-bottom:20px;color:var(--navy)}
+.home-balance-card{background:var(--navy);border-radius:20px;padding:24px 22px;margin-bottom:28px}
+.home-balance-label{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px}
+.home-balance-amount{font-family:'Bricolage Grotesque',sans-serif;font-size:38px;font-weight:800;color:var(--lime);letter-spacing:-.02em;line-height:1}
+.home-balance-amount span{font-size:22px}
+.home-balance-sub{font-size:12px;color:rgba(255,255,255,0.4);margin-top:6px}
+.home-section-title{font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px;color:var(--navy)}
+.savings-overview-card{background:#F8FAFC;border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:12px;margin-bottom:80px}
+.sov-row{display:flex;justify-content:space-between;font-size:14px;color:var(--charcoal);margin-bottom:10px}
+.sov-amt{color:var(--navy);font-weight:600}
+.sov-progress-wrap{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:10px 0 8px}
+.sov-progress-bar{height:100%;background:var(--navy);border-radius:3px}
+.sov-caption{font-size:12px;color:var(--charcoal)}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;display:none;background:#fff;border-top:1px solid var(--border);padding:10px 0 20px}
+.bottom-nav.visible{display:flex}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;transition:opacity .2s}
+.bnav-item svg{width:22px;height:22px;stroke:var(--charcoal)}
+.bnav-item span{font-size:11px;color:var(--charcoal);font-weight:500}
+.bnav-item.active svg{stroke:var(--navy)}
+.bnav-item.active span{color:var(--navy);font-weight:700}
+
+/* ── PROFILE ── */
+.profile-list{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.profile-row{display:flex;align-items:center;gap:14px;padding:16px 14px;border-radius:14px;cursor:pointer;transition:background .2s;font-size:15px;font-weight:500;color:var(--navy)}
+.profile-row:hover{background:#F1F5F9}
+.profile-row svg{width:20px;height:20px;stroke:var(--charcoal);flex-shrink:0}
+.profile-row.danger{color:var(--red)}
+.profile-row.danger svg{stroke:var(--red)}
+.profile-divider{height:1px;background:var(--border);margin:8px 0}
+.profile-avatar{width:60px;height:60px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.profile-avatar span{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800;color:var(--lime)}
+.profile-name{font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;text-align:center;color:var(--navy);margin-bottom:4px}
+.profile-email{font-size:13px;color:var(--charcoal);text-align:center;margin-bottom:24px}
+
+/* ── RATE ── */
+.rate-bar{margin-top:24px;padding-top:20px;border-top:1px solid var(--border);text-align:center}
+.rate-label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--charcoal);margin-bottom:12px}
+.stars{display:flex;justify-content:center;gap:6px}
+.star{font-size:28px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.3;line-height:1}
+.star:hover,.star.lit{opacity:1;transform:scale(1.15)}
+.rate-feedback{font-size:13px;color:var(--navy);margin-top:10px;min-height:18px;font-weight:600}
+
+/* ── TRIAL COUNTER ── */
+.trial-counter{font-size:12px;color:var(--red);margin-top:8px;font-weight:500;display:none}
+.trial-counter.visible{display:block}
+
+@media(max-width:480px){
+  .card{padding:28px 20px 32px;border-radius:20px}
+  .welcome-headline{font-size:36px}
+  .card-field-row{flex-direction:column;align-items:flex-start}
+  .card-hint-img{width:100%}
+  .card-hint-img svg{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- DOODLE BG: white bg, navy doodles, dense -->
+<div class="doodle-bg">
+<svg viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#0D1B2A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.12">
+  <!-- Row 1 -->
+  <g transform="translate(30,30)"><rect x="10" y="20" width="80" height="28" rx="5"/><path d="M18 20L28 5L65 5L75 20"/><circle cx="24" cy="50" r="8"/><circle cx="64" cy="50" r="8"/><line x1="44" y1="5" x2="44" y2="20"/></g>
+  <g transform="translate(170,20)"><polygon points="0,40 50,0 100,40"/><rect x="10" y="40" width="80" height="55"/><rect x="35" y="60" width="30" height="35"/><rect x="14" y="48" width="20" height="20"/><rect x="66" y="48" width="20" height="20"/></g>
+  <g transform="translate(330,25)"><text x="0" y="55" font-size="58" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">$</text></g>
+  <g transform="translate(420,35)"><path d="M0,18L90,8L82,22L34,27L30,44L16,36Z"/><line x1="25" y1="16" x2="25" y2="8"/><path d="M63,12L77,4L79,18Z"/></g>
+  <g transform="translate(560,22)"><ellipse cx="42" cy="28" rx="38" ry="18"/><path d="M4,28Q4,58 42,58Q80,58 80,28"/><path d="M18,8Q18,-2 28,3"/><path d="M40,5Q40,-5 50,2"/><path d="M58,9Q62,-1 68,6"/></g>
+  <g transform="translate(700,18)"><rect x="5" y="15" width="90" height="30" rx="5"/><path d="M15 15L26 2L72 2L82 15"/><circle cx="23" cy="47" r="9"/><circle cx="73" cy="47" r="9"/></g>
+  <g transform="translate(860,15)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">₦</text></g>
+  <g transform="translate(960,25)"><polygon points="0,35 45,0 90,35"/><rect x="8" y="35" width="74" height="50"/><rect x="30" y="55" width="30" height="30"/><rect x="12" y="42" width="18" height="18"/><rect x="60" y="42" width="18" height="18"/></g>
+  <g transform="translate(1110,20)"><ellipse cx="30" cy="10" rx="28" ry="10"/><path d="M2,10Q2,22 30,22Q58,22 58,10"/><path d="M2,18Q2,30 30,30Q58,30 58,18"/><path d="M2,26Q2,38 30,38Q58,38 58,26"/></g>
+  <g transform="translate(1230,30)"><path d="M0,18L85,9L77,23L32,28L28,46L14,37Z"/><line x1="23" y1="17" x2="23" y2="9"/><path d="M60,13L73,4L76,18Z"/></g>
+  <g transform="translate(1340,20)"><text x="0" y="46" font-size="48" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.2">%</text></g>
+  <!-- Row 2 -->
+  <g transform="translate(20,150)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">₦</text></g>
+  <g transform="translate(120,160)"><rect x="5" y="20" width="60" height="50" rx="4"/><path d="M15 20Q15 2 35 2Q55 2 55 20"/><line x1="20" y1="35" x2="50" y2="35"/></g>
+  <g transform="translate(240,145)"><rect x="8" y="16" width="84" height="28" rx="4"/><path d="M18 16L28 3L72 3L80 16"/><circle cx="26" cy="46" r="8"/><circle cx="72" cy="46" r="8"/></g>
+  <g transform="translate(390,140)"><polygon points="0,40 55,0 110,40"/><rect x="12" y="40" width="86" height="60"/><rect x="38" y="60" width="34" height="40"/><rect x="16" y="48" width="22" height="22"/><rect x="72" y="48" width="22" height="22"/><line x1="29" y1="48" x2="29" y2="70"/><line x1="16" y1="59" x2="38" y2="59"/></g>
+  <g transform="translate(560,150)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">$</text></g>
+  <g transform="translate(650,155)"><ellipse cx="40" cy="14" rx="36" ry="14"/><path d="M4,14Q4,46 40,46Q76,46 76,14"/><path d="M15,4Q15,-6 25,1"/><path d="M38,2Q38,-8 48,1"/><path d="M58,5Q62,-4 68,3"/></g>
+  <g transform="translate(790,148)"><path d="M0,16L80,8L72,20L30,25L26,42L14,34Z"/><line x1="22" y1="15" x2="22" y2="8"/><path d="M56,12L68,3L71,17Z"/></g>
+  <g transform="translate(930,155)"><ellipse cx="30" cy="10" rx="28" ry="10"/><path d="M2,10Q2,22 30,22Q58,22 58,10"/><path d="M2,18Q2,30 30,30Q58,30 58,18"/><path d="M2,26Q2,38 30,38Q58,38 58,26"/></g>
+  <g transform="translate(1060,145)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">₦</text></g>
+  <g transform="translate(1160,150)"><rect x="10" y="20" width="80" height="28" rx="5"/><path d="M18 20L28 5L65 5L75 20"/><circle cx="24" cy="50" r="8"/><circle cx="64" cy="50" r="8"/></g>
+  <g transform="translate(1300,140)"><polygon points="0,36 44,0 88,36"/><rect x="8" y="36" width="72" height="48"/><rect x="28" y="52" width="30" height="32"/><rect x="11" y="43" width="18" height="18"/><rect x="59" y="43" width="18" height="18"/></g>
+  <!-- Row 3 -->
+  <g transform="translate(40,290)"><path d="M0,18L90,8L82,22L34,27L30,44L16,36Z"/><line x1="25" y1="16" x2="25" y2="8"/><path d="M63,12L77,4L79,18Z"/></g>
+  <g transform="translate(190,280)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">$</text></g>
+  <g transform="translate(285,285)"><ellipse cx="38" cy="14" rx="35" ry="14"/><path d="M3,14Q3,44 38,44Q73,44 73,14"/><path d="M14,4Q14,-5 24,2"/><path d="M36,2Q36,-6 46,1"/></g>
+  <g transform="translate(420,275)"><rect x="5" y="16" width="90" height="30" rx="5"/><path d="M15 16L26 3L72 3L82 16"/><circle cx="23" cy="48" r="9"/><circle cx="73" cy="48" r="9"/></g>
+  <g transform="translate(580,285)"><rect x="5" y="20" width="60" height="50" rx="4"/><path d="M15 20Q15 2 35 2Q55 2 55 20"/><line x1="20" y1="35" x2="50" y2="35"/></g>
+  <g transform="translate(700,278)"><polygon points="0,38 48,0 96,38"/><rect x="10" y="38" width="76" height="52"/><rect x="32" y="56" width="30" height="34"/><rect x="14" y="44" width="20" height="20"/><rect x="62" y="44" width="20" height="20"/></g>
+  <g transform="translate(858,282)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">₦</text></g>
+  <g transform="translate(960,290)"><ellipse cx="30" cy="10" rx="28" ry="10"/><path d="M2,10Q2,22 30,22Q58,22 58,10"/><path d="M2,18Q2,30 30,30Q58,30 58,18"/><path d="M2,26Q2,38 30,38Q58,38 58,26"/></g>
+  <g transform="translate(1080,280)"><text x="0" y="48" font-size="50" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.2">%</text></g>
+  <g transform="translate(1180,285)"><rect x="8" y="16" width="84" height="28" rx="4"/><path d="M18 16L28 3L72 3L80 16"/><circle cx="26" cy="46" r="8"/><circle cx="72" cy="46" r="8"/></g>
+  <g transform="translate(1330,278)"><path d="M0,16L80,8L72,20L30,25L26,42L14,34Z"/><line x1="22" y1="15" x2="22" y2="8"/><path d="M56,12L68,3L71,17Z"/></g>
+  <!-- Row 4 -->
+  <g transform="translate(20,420)"><polygon points="0,40 50,0 100,40"/><rect x="10" y="40" width="80" height="55"/><rect x="35" y="60" width="30" height="35"/><rect x="14" y="48" width="20" height="20"/><rect x="66" y="48" width="20" height="20"/></g>
+  <g transform="translate(185,428)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">$</text></g>
+  <g transform="translate(280,430)"><rect x="5" y="20" width="60" height="50" rx="4"/><path d="M15 20Q15 2 35 2Q55 2 55 20"/><line x1="20" y1="35" x2="50" y2="35"/></g>
+  <g transform="translate(405,420)"><ellipse cx="40" cy="14" rx="36" ry="14"/><path d="M4,14Q4,46 40,46Q76,46 76,14"/><path d="M15,4Q15,-4 25,1"/><path d="M38,2Q38,-6 48,1"/></g>
+  <g transform="translate(545,418)"><path d="M0,18L90,8L82,22L34,27L30,44L16,36Z"/><line x1="25" y1="16" x2="25" y2="8"/><path d="M63,12L77,4L79,18Z"/></g>
+  <g transform="translate(698,422)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">₦</text></g>
+  <g transform="translate(800,418)"><ellipse cx="30" cy="10" rx="28" ry="10"/><path d="M2,10Q2,22 30,22Q58,22 58,10"/><path d="M2,18Q2,30 30,30Q58,30 58,18"/><path d="M2,26Q2,38 30,38Q58,38 58,26"/></g>
+  <g transform="translate(930,420)"><rect x="10" y="20" width="80" height="28" rx="5"/><path d="M18 20L28 5L65 5L75 20"/><circle cx="24" cy="50" r="8"/><circle cx="64" cy="50" r="8"/></g>
+  <g transform="translate(1078,415)"><polygon points="0,38 48,0 96,38"/><rect x="10" y="38" width="76" height="52"/><rect x="32" y="56" width="30" height="34"/><rect x="14" y="44" width="20" height="20"/><rect x="62" y="44" width="20" height="20"/></g>
+  <g transform="translate(1238,422)"><text x="0" y="48" font-size="50" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.2">%</text></g>
+  <g transform="translate(1330,420)"><rect x="5" y="16" width="90" height="30" rx="5"/><path d="M15 16L26 3L72 3L82 16"/><circle cx="23" cy="48" r="9"/><circle cx="73" cy="48" r="9"/></g>
+  <!-- Row 5 -->
+  <g transform="translate(30,560)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">₦</text></g>
+  <g transform="translate(130,558)"><rect x="8" y="16" width="84" height="28" rx="4"/><path d="M18 16L28 3L72 3L80 16"/><circle cx="26" cy="46" r="8"/><circle cx="72" cy="46" r="8"/></g>
+  <g transform="translate(280,552)"><polygon points="0,40 50,0 100,40"/><rect x="10" y="40" width="80" height="55"/><rect x="35" y="60" width="30" height="35"/><rect x="14" y="48" width="20" height="20"/><rect x="66" y="48" width="20" height="20"/></g>
+  <g transform="translate(445,560)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">$</text></g>
+  <g transform="translate(538,555)"><path d="M0,18L90,8L82,22L34,27L30,44L16,36Z"/><line x1="25" y1="16" x2="25" y2="8"/><path d="M63,12L77,4L79,18Z"/></g>
+  <g transform="translate(695,560)"><ellipse cx="38" cy="14" rx="35" ry="14"/><path d="M3,14Q3,44 38,44Q73,44 73,14"/><path d="M14,4Q14,-5 24,2"/><path d="M36,2Q36,-6 46,1"/></g>
+  <g transform="translate(836,555)"><ellipse cx="30" cy="10" rx="28" ry="10"/><path d="M2,10Q2,22 30,22Q58,22 58,10"/><path d="M2,18Q2,30 30,30Q58,30 58,18"/><path d="M2,26Q2,38 30,38Q58,38 58,26"/></g>
+  <g transform="translate(964,558)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">₦</text></g>
+  <g transform="translate(1070,552)"><rect x="5" y="20" width="60" height="50" rx="4"/><path d="M15 20Q15 2 35 2Q55 2 55 20"/><line x1="20" y1="35" x2="50" y2="35"/></g>
+  <g transform="translate(1195,555)"><rect x="10" y="20" width="80" height="28" rx="5"/><path d="M18 20L28 5L65 5L75 20"/><circle cx="24" cy="50" r="8"/><circle cx="64" cy="50" r="8"/></g>
+  <g transform="translate(1338,555)"><text x="0" y="48" font-size="50" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.2">%</text></g>
+  <!-- Row 6 -->
+  <g transform="translate(20,695)"><path d="M0,18L90,8L82,22L34,27L30,44L16,36Z"/><line x1="25" y1="16" x2="25" y2="8"/><path d="M63,12L77,4L79,18Z"/></g>
+  <g transform="translate(170,688)"><polygon points="0,38 48,0 96,38"/><rect x="10" y="38" width="76" height="52"/><rect x="32" y="56" width="30" height="34"/><rect x="14" y="44" width="20" height="20"/><rect x="62" y="44" width="20" height="20"/></g>
+  <g transform="translate(328,692)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">$</text></g>
+  <g transform="translate(420,690)"><ellipse cx="30" cy="10" rx="28" ry="10"/><path d="M2,10Q2,22 30,22Q58,22 58,10"/><path d="M2,18Q2,30 30,30Q58,30 58,18"/><path d="M2,26Q2,38 30,38Q58,38 58,26"/></g>
+  <g transform="translate(545,692)"><rect x="8" y="16" width="84" height="28" rx="4"/><path d="M18 16L28 3L72 3L80 16"/><circle cx="26" cy="46" r="8"/><circle cx="72" cy="46" r="8"/></g>
+  <g transform="translate(698,688)"><text x="0" y="52" font-size="54" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.4">₦</text></g>
+  <g transform="translate(795,690)"><rect x="5" y="20" width="60" height="50" rx="4"/><path d="M15 20Q15 2 35 2Q55 2 55 20"/><line x1="20" y1="35" x2="50" y2="35"/></g>
+  <g transform="translate(928,685)"><polygon points="0,40 50,0 100,40"/><rect x="10" y="40" width="80" height="55"/><rect x="35" y="60" width="30" height="35"/><rect x="14" y="48" width="20" height="20"/><rect x="66" y="48" width="20" height="20"/></g>
+  <g transform="translate(1090,692)"><ellipse cx="40" cy="14" rx="36" ry="14"/><path d="M4,14Q4,46 40,46Q76,46 76,14"/><path d="M15,4Q15,-4 25,1"/><path d="M38,2Q38,-6 48,1"/></g>
+  <g transform="translate(1230,688)"><text x="0" y="48" font-size="50" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.2">%</text></g>
+  <g transform="translate(1330,690)"><rect x="10" y="20" width="80" height="28" rx="5"/><path d="M18 20L28 5L65 5L75 20"/><circle cx="24" cy="50" r="8"/><circle cx="64" cy="50" r="8"/></g>
+  <!-- Row 7 -->
+  <g transform="translate(35,820)"><text x="0" y="44" font-size="46" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.2">₦</text></g>
+  <g transform="translate(130,815)"><ellipse cx="30" cy="10" rx="28" ry="10"/><path d="M2,10Q2,22 30,22Q58,22 58,10"/><path d="M2,18Q2,30 30,30Q58,30 58,18"/><path d="M2,26Q2,38 30,38Q58,38 58,26"/></g>
+  <g transform="translate(255,815)"><rect x="5" y="16" width="90" height="30" rx="5"/><path d="M15 16L26 3L72 3L82 16"/><circle cx="23" cy="48" r="9"/><circle cx="73" cy="48" r="9"/></g>
+  <g transform="translate(412,818)"><text x="0" y="44" font-size="46" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.2">$</text></g>
+  <g transform="translate(510,815)"><path d="M0,16L80,8L72,20L30,25L26,42L14,34Z"/><line x1="22" y1="15" x2="22" y2="8"/><path d="M56,12L68,3L71,17Z"/></g>
+  <g transform="translate(648,818)"><polygon points="0,36 44,0 88,36"/><rect x="8" y="36" width="72" height="48"/><rect x="28" y="52" width="30" height="32"/><rect x="11" y="43" width="18" height="18"/><rect x="59" y="43" width="18" height="18"/></g>
+  <g transform="translate(800,815)"><rect x="5" y="20" width="60" height="50" rx="4"/><path d="M15 20Q15 2 35 2Q55 2 55 20"/><line x1="20" y1="35" x2="50" y2="35"/></g>
+  <g transform="translate(930,818)"><text x="0" y="44" font-size="46" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.2">₦</text></g>
+  <g transform="translate(1028,815)"><ellipse cx="38" cy="14" rx="35" ry="14"/><path d="M3,14Q3,44 38,44Q73,44 73,14"/><path d="M14,4Q14,-5 24,2"/><path d="M36,2Q36,-6 46,1"/></g>
+  <g transform="translate(1168,815)"><rect x="8" y="16" width="84" height="28" rx="4"/><path d="M18 16L28 3L72 3L80 16"/><circle cx="26" cy="46" r="8"/><circle cx="72" cy="46" r="8"/></g>
+  <g transform="translate(1318,818)"><text x="0" y="44" font-size="46" font-family="Arial" stroke="#0D1B2A" fill="none" stroke-width="1.2">%</text></g>
+</svg>
+</div>
+
+<div class="app">
+<div class="card">
+
+<!-- ═══ S0: SIGN IN ═══ -->
+<div class="screen active" id="s-signin">
+  <div class="welcome-logo"><span class="dot"></span>Pennywise</div>
+  <h2 class="screen-title">Let's get back<br>to business.</h2>
+  <p class="screen-sub">Sign in to keep saving your future.</p>
+  <div class="field">
+    <label class="field-label">Email</label>
+    <input type="email" id="si-email" placeholder="Type your email" autocomplete="email">
+    <p class="error-msg" id="err-si-email">Your email cannot be empty</p>
+  </div>
+  <div class="field">
+    <label class="field-label">Password</label>
+    <div class="pw-wrap"><input type="password" id="si-password" placeholder="Type your password" autocomplete="current-password"><button type="button" class="pw-toggle" onclick="togglePw('si-password',this)" aria-label="Show password"><svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-closed" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
+    <p class="error-msg" id="err-si-password">This password is not correct.</p>
+  </div>
+  <p class="forgot-link"><a href="#" onclick="openForgotPopup();return false;">Forgot your password?</a></p>
+  <button class="btn-primary" onclick="validateSignIn()">Sign In</button>
+  <div class="or-divider"><span>Or login via</span></div>
+  <div class="social-login">
+    <button type="button" class="btn-social" onclick="socialLogin('Google')">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+      Login by Google
+    </button>
+    <button type="button" class="btn-social" onclick="socialLogin('Apple ID')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+      Login by Apple ID
+    </button>
+    <button type="button" class="btn-social" onclick="socialLogin('Facebook')">
+      <svg viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Login by Facebook
+    </button>
+  </div>
+  <p class="signin-link">Don't have an account? <a href="#" onclick="goTo('s-welcome');return false;">Create one</a></p>
+</div>
+
+<!-- ═══ FORGOT PASSWORD POPUP ═══ -->
+<div class="popup-overlay" id="forgotPopup">
+  <div class="popup-card">
+    <button class="popup-close" onclick="closeForgotPopup()" aria-label="Close">&times;</button>
+    <div class="popup-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+    <h3 class="popup-title">Forgot your password?</h3>
+    <p class="popup-text">If you have <strong>forgotten your password</strong>, you can recover your account here.</p>
+    <button class="btn-primary" onclick="recoverAccount()">Recover my account</button>
+    <button class="btn-ghost" onclick="closeForgotPopup()">Back to sign in</button>
+  </div>
+</div>
+
+<!-- ═══ S1: WELCOME ═══ -->
+<div class="screen" id="s-welcome">
+  <div class="welcome-logo"><span class="dot"></span>Pennywise</div>
+  <h1 class="welcome-headline">Together,<br><em>Let's Save<br>Your Future.</em></h1>
+  <p class="welcome-sub">Smart budgeting and saving, built for how Nigerians live and spend.</p>
+  <button class="btn-primary" onclick="goTo('s-name')">Save My Future</button>
+  <p class="signin-link">Already have an account? <a href="#" onclick="goTo('s-signin');return false;">Sign in</a></p>
+</div>
+
+<!-- ═══ S2: NAME ═══ -->
+<div class="screen" id="s-name">
+  <div class="step-indicator"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+  <h2 class="screen-title">Let's get to<br>know you.</h2>
+  <p class="screen-sub">Start with the basics — no stress.</p>
+  <div class="field">
+    <label class="field-label">First Name</label>
+    <input type="text" id="firstName" placeholder="John" autocomplete="given-name">
+    <p class="error-msg" id="err-firstName">Type your first name</p>
+  </div>
+  <div class="field">
+    <label class="field-label">Surname</label>
+    <input type="text" id="surname" placeholder="Doe" autocomplete="family-name">
+    <p class="error-msg" id="err-surname">Surname cannot be empty</p>
+  </div>
+  <button class="btn-primary" onclick="validateName()">Continue</button>
+</div>
+
+<!-- ═══ S3: DOB + GENDER ═══ -->
+<div class="screen" id="s-dob">
+  <button class="btn-back" onclick="goTo('s-name')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <div class="step-indicator"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+  <h2 class="screen-title">A bit more<br>about you.</h2>
+  <p class="screen-sub">Quick ones, we promise.</p>
+  <div class="field">
+    <label class="field-label">Date of Birth</label>
+    <input type="date" id="dob" min="" max="" required>
+    <p class="error-msg" id="err-dob">You must pick a birthdate.</p>
+  </div>
+  <div class="field">
+    <label class="field-label">What gender do you identify as?</label>
+    <div class="gender-grid" id="genderGrid">
+      <div class="gender-option" data-val="male" onclick="selectGender(this)">Male</div>
+      <div class="gender-option" data-val="female" onclick="selectGender(this)">Female</div>
+      <div class="gender-option" data-val="other" onclick="selectGender(this)">Other</div>
+      <div class="gender-option" data-val="prefer-not" onclick="selectGender(this)">Prefer not to say</div>
+    </div>
+    <div class="gender-other-input" id="genderOtherWrap"><input type="text" id="genderOther" placeholder="Type your gender"></div>
+    <p class="error-msg" id="err-gender">You must pick one gender</p>
+  </div>
+  <button class="btn-primary" onclick="validateDobGender()">Continue</button>
+</div>
+
+<!-- ═══ S4: CONTACT ═══ -->
+<div class="screen" id="s-contact">
+  <button class="btn-back" onclick="goTo('s-dob')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <div class="step-indicator"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+  <h2 class="screen-title">How do we<br>reach you?</h2>
+  <p class="screen-sub">We'll keep your details safe and private.</p>
+  <div class="field">
+    <label class="field-label">Phone Number</label>
+    <p class="field-hint">We need this to protect your account</p>
+    <div class="phone-wrap" id="phoneWrap"><span class="phone-prefix">+234</span><input type="tel" id="phone" placeholder="xxx xxx xxxx" inputmode="numeric" maxlength="11"></div>
+    <p class="error-msg" id="err-phone">This phone number cannot be empty</p>
+  </div>
+  <div class="field">
+    <label class="field-label">Email Address</label>
+    <p class="field-hint">We need this to send you important information.</p>
+    <input type="email" id="email" placeholder="johndoe@quickmail.com" autocomplete="email">
+    <p class="error-msg" id="err-email">This email cannot be empty</p>
+  </div>
+  <button class="btn-primary" onclick="validateContact()">Continue</button>
+</div>
+
+<!-- ═══ S5: PASSWORD ═══ -->
+<div class="screen" id="s-password">
+  <button class="btn-back" onclick="goTo('s-contact')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <div class="step-indicator"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
+  <h2 class="screen-title">Let's secure<br>your account.</h2>
+  <p class="screen-sub">Create a strong password you'll remember.</p>
+  <div class="field">
+    <label class="field-label">Password</label>
+    <div class="pw-wrap"><input type="password" id="password" placeholder="Enter your login password" oninput="checkPassword(this.value)" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('password',this)" aria-label="Show password"><svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-closed" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
+    <div class="pw-rules">
+      <div class="pw-rule" id="r-len"><span class="pw-rule-dot"></span>8+ characters</div>
+      <div class="pw-rule" id="r-upper"><span class="pw-rule-dot"></span>Uppercase letter</div>
+      <div class="pw-rule" id="r-lower"><span class="pw-rule-dot"></span>Lowercase letter</div>
+      <div class="pw-rule" id="r-symbol"><span class="pw-rule-dot"></span>Symbol</div>
+      <div class="pw-rule" id="r-num"><span class="pw-rule-dot"></span>Number</div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="field-label">Confirm Password</label>
+    <div class="pw-wrap"><input type="password" id="confirmPassword" placeholder="Re-enter your password" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('confirmPassword',this)" aria-label="Show password"><svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-closed" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
+    <p class="error-msg" id="err-password">Passwords do not match. Check your passwords.</p>
+  </div>
+  <button class="btn-primary" onclick="validatePassword()">Continue</button>
+</div>
+
+<!-- ═══ S6: PASSCODE ═══ -->
+<div class="screen" id="s-passcode">
+  <button class="btn-back" onclick="goTo('s-password')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <div class="step-indicator"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div>
+  <h2 class="screen-title">Create<br>your passcode.</h2>
+  <p class="screen-sub">This confirms every transaction you make.</p>
+  <div class="field">
+    <label class="field-label">Passcode</label>
+    <div class="passcode-grid"><input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="pc1a"><input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="pc1b"><input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="pc1c"><input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="pc1d"></div>
+  </div>
+  <div class="field">
+    <label class="field-label">Confirm Passcode</label>
+    <div class="passcode-grid"><input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="pc2a"><input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="pc2b"><input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="pc2c"><input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="pc2d"></div>
+    <p class="error-msg" id="err-passcode">Passcodes do not match</p>
+  </div>
+  <button class="btn-primary" onclick="validatePasscode()">Create My Account</button>
+</div>
+
+<!-- ═══ S7: ACCOUNT SUCCESS ═══ -->
+<div class="screen" id="s-success">
+  <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#B5FF4D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+  <h2 class="success-title">You're in,<br><span style="background:var(--lime);padding:0 6px;border-radius:4px">Future Saver! 🎉</span></h2>
+  <p class="success-sub">Your account is ready. Let's start building the future you deserve — one naira at a time.</p>
+  <button class="btn-primary" onclick="goTo('s-onboard1')">Continue</button>
+  <div class="rate-bar">
+    <p class="rate-label">Rate this design</p>
+    <div class="stars"><span class="star" onclick="rateStar(1)">⭐</span><span class="star" onclick="rateStar(2)">⭐</span><span class="star" onclick="rateStar(3)">⭐</span><span class="star" onclick="rateStar(4)">⭐</span><span class="star" onclick="rateStar(5)">⭐</span></div>
+    <p class="rate-feedback" id="rateFeedback"></p>
+  </div>
+</div>
+
+<!-- ═══ S8: ONBOARDING — JOB + INCOME ═══ -->
+<div class="screen" id="s-onboard1">
+  <p class="ob-greeting">Great to meet you, <strong id="ob-name" class="js-user-name">friend</strong>.</p>
+  <h2 class="screen-title">Just a few more<br>questions.</h2>
+  <p class="screen-sub">This helps us make Pennywise work for your life.</p>
+  <div class="field">
+    <label class="field-label">What do you do for a living?</label>
+    <input type="text" id="job" placeholder="e.g. Teacher, Trader, Engineer">
+    <p class="error-msg" id="err-job">This field must be filled</p>
+  </div>
+  <div class="field">
+    <label class="field-label">How much do you earn in a month?</label>
+    <p class="field-hint">We need this to calculate how much you should save to keep you safe during emergencies.</p>
+    <div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" id="income" placeholder="0" inputmode="numeric"></div>
+    <p class="error-msg" id="err-income">This field must be filled</p>
+  </div>
+  <button class="btn-primary" onclick="validateOnboard1()">Budget my money</button>
+</div>
+
+<!-- ═══ S9: BUDGET — ALL QUESTIONS (single page) ═══ -->
+<div class="screen" id="s-budget-all">
+  <button class="btn-back" onclick="goTo('s-onboard1')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <h2 class="screen-title">Let's know your<br>expenses.</h2>
+  <p class="screen-sub">Answer everything on this one page — we'll use it to build your budget.</p>
+  <div class="budget-notice">💡 Type ₦0 if you do not spend on this.</div>
+
+  <div class="budget-block">
+    <div class="budget-section-label">Food</div>
+    <div class="field">
+      <label class="field-label">How much do you spend on food?</label>
+      <p class="field-hint">Include all food spending — cooking at home and buying meals outside.</p>
+      <div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" id="food-amount" placeholder="0" inputmode="numeric"></div>
+      <p class="error-msg" id="err-food-amount">This field must be filled</p>
+      <div class="freq-group">
+        <span class="freq-label-txt">Per</span>
+        <div class="freq-row">
+          <div class="freq-opt"><input type="radio" name="food-freq" id="food-day" value="day"><label for="food-day">Day</label></div>
+          <div class="freq-opt"><input type="radio" name="food-freq" id="food-month" value="month"><label for="food-month">Month</label></div>
+        </div>
+        <p class="freq-error" id="err-food-freq">Please select one: Day or Month</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="budget-block">
+    <div class="budget-section-label">Transport</div>
+    <div class="field">
+      <label class="field-label">How much do you spend on transport?</label>
+      <div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" id="transport-amount" placeholder="0" inputmode="numeric"></div>
+      <p class="error-msg" id="err-transport-amount">This field must be filled</p>
+      <div class="freq-group">
+        <span class="freq-label-txt">Per</span>
+        <div class="freq-row">
+          <div class="freq-opt"><input type="radio" name="transport-freq" id="transport-day" value="day"><label for="transport-day">Day</label></div>
+          <div class="freq-opt"><input type="radio" name="transport-freq" id="transport-month" value="month"><label for="transport-month">Month</label></div>
+        </div>
+        <p class="freq-error" id="err-transport-freq">Please select one: Day or Month</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="budget-block">
+    <div class="budget-section-label">Provisions &amp; Household</div>
+    <div class="field">
+      <label class="field-label">How much do you spend on provisions?</label>
+      <p class="field-hint">Includes drinks, toiletries, household essentials and similar recurring purchases.</p>
+      <div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" id="provisions-amount" placeholder="0" inputmode="numeric"></div>
+      <p class="error-msg" id="err-prov-amount">This field must be filled</p>
+      <div class="freq-group">
+        <span class="freq-label-txt">Per</span>
+        <div class="freq-row">
+          <div class="freq-opt"><input type="radio" name="prov-freq" id="prov-day" value="day"><label for="prov-day">Day</label></div>
+          <div class="freq-opt"><input type="radio" name="prov-freq" id="prov-month" value="month"><label for="prov-month">Month</label></div>
+        </div>
+        <p class="freq-error" id="err-prov-freq">Please select one: Day or Month</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="budget-block">
+    <div class="budget-section-label">Electricity</div>
+    <div class="field">
+      <label class="field-label">How much do you spend on electricity?</label>
+      <div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" id="electricity-amount" placeholder="0" inputmode="numeric"></div>
+      <p class="error-msg" id="err-elec-amount">This field must be filled</p>
+      <div class="freq-group">
+        <span class="freq-label-txt">Per</span>
+        <div class="freq-row">
+          <div class="freq-opt"><input type="radio" name="elec-freq" id="elec-month" value="month"><label for="elec-month">Month</label></div>
+          <div class="freq-opt"><input type="radio" name="elec-freq" id="elec-year" value="year"><label for="elec-year">Year</label></div>
+        </div>
+        <p class="freq-error" id="err-elec-freq">Please select one: Month or Year</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="budget-block">
+    <div class="budget-section-label">Water</div>
+    <div class="field">
+      <label class="field-label">How much do you spend on water?</label>
+      <div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" id="water-amount" placeholder="0" inputmode="numeric"></div>
+      <p class="error-msg" id="err-water-amount">This field must be filled</p>
+      <div class="freq-group">
+        <span class="freq-label-txt">Per</span>
+        <div class="freq-row">
+          <div class="freq-opt"><input type="radio" name="water-freq" id="water-day" value="day"><label for="water-day">Day</label></div>
+          <div class="freq-opt"><input type="radio" name="water-freq" id="water-month" value="month"><label for="water-month">Month</label></div>
+        </div>
+        <p class="freq-error" id="err-water-freq">Please select one: Day or Month</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="budget-block">
+    <div class="budget-section-label">Rent</div>
+    <div class="field">
+      <label class="field-label">What's your rent?</label>
+      <div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" id="rent-amount" placeholder="0" inputmode="numeric"></div>
+      <p class="error-msg" id="err-rent-amount">This field must be filled</p>
+      <div class="freq-group">
+        <span class="freq-label-txt">Per</span>
+        <div class="freq-row">
+          <div class="freq-opt"><input type="radio" name="rent-freq" id="rent-month" value="month"><label for="rent-month">Monthly</label></div>
+          <div class="freq-opt"><input type="radio" name="rent-freq" id="rent-year" value="year"><label for="rent-year">Yearly</label></div>
+        </div>
+        <p class="freq-error" id="err-rent-freq">Please select one: Monthly or Yearly</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="budget-block">
+    <div class="budget-section-label">Other Expenses</div>
+    <p class="field-hint" style="margin-bottom:12px">Add anything we haven't asked about yet, and how often you spend on it.</p>
+    <div id="other-expenses-list">
+      <div class="other-row">
+        <div class="field" style="flex:1;margin-bottom:0"><input type="text" class="oe-name" placeholder="Spending (e.g. Netflix)"></div>
+        <div class="field" style="flex:1;margin-bottom:0"><div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" class="oe-amount" placeholder="Amount" inputmode="numeric"></div></div>
+        <div class="of-wrap"><select class="other-freq-select oe-freq"><option value="" disabled selected>Per…</option><option value="day">Per Day</option><option value="month">Per Month</option></select></div>
+      </div>
+    </div>
+    <p class="freq-error" id="err-other-freq">Please select Daily or Monthly for each other expense</p>
+    <button class="btn-add" onclick="addExpenseRow()">+ Add Field</button>
+  </div>
+
+  <button class="btn-primary" onclick="validateBudgetAll()">Let's review my budget</button>
+</div>
+
+<!-- ═══ S16: BUDGET ANALYSIS ═══ -->
+<div class="screen" id="s-budget-analysis">
+  <button class="btn-back" onclick="goTo('s-budget-all')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <p class="analysis-income-line" id="analysisIncomeLine">At <strong>₦0</strong> per month, you earn <strong>₦0</strong> per year.</p>
+  <p class="screen-sub">Your expenses have been calculated on a yearly basis.</p>
+  <div class="pie-wrap">
+    <canvas id="budgetPie" width="220" height="220"></canvas>
+    <div class="pie-legend" id="pieLegend"></div>
+  </div>
+  <div class="field">
+    <div class="analysis-section-title">Big Money Spenders</div>
+    <div class="spender-list" id="spenderList"></div>
+  </div>
+  <div class="field">
+    <div class="analysis-section-title">Recommendations</div>
+    <p class="reco-text" id="recoText"></p>
+    <p class="reco-note">(Recommendations are based on your highest spending categories.)</p>
+  </div>
+  <p class="analysis-cta-label">Ready to start saving?</p>
+  <button class="btn-primary" onclick="goTo('s-savings-intro')">Start Saving</button>
+</div>
+
+<!-- ═══ S17: SAVINGS INTRO ═══ -->
+<div class="screen" id="s-savings-intro">
+  <button class="btn-back" onclick="goTo('s-budget-analysis')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <div class="savings-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#B5FF4D" stroke-width="1.8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg></div>
+  <h2 class="screen-title">The best way to<br>build wealth.</h2>
+  <p class="savings-body">Consistently save part of your earnings each month so it grows into a substantial financial cushion over time.</p>
+  <button class="btn-primary" onclick="goTo('s-savings-recommended')">Let's start saving</button>
+</div>
+
+<!-- ═══ S18: RECOMMENDED SAVINGS ═══ -->
+<div class="screen" id="s-savings-recommended">
+  <button class="btn-back" onclick="goTo('s-savings-intro')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <h2 class="screen-title">Let's save <span style="background:var(--lime);padding:0 4px;border-radius:3px" id="rec-amt-title">₦0</span><br>for you every month.</h2>
+  <p class="screen-sub" style="margin-top:12px">That's 10% of your monthly income. It will help you build a stable emergency fund after one year while earning interest.</p>
+  <button class="btn-primary" onclick="acceptRecommendedSavings()">Save <span id="rec-amt-btn">₦0</span></button>
+  <button class="btn-ghost" onclick="goTo('s-savings-goal')">Save for something else</button>
+</div>
+
+<!-- ═══ S19: CUSTOM GOAL ═══ -->
+<div class="screen" id="s-savings-goal">
+  <button class="btn-back" onclick="goTo('s-savings-recommended')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <h2 class="screen-title">What should we<br>save for?</h2>
+  <p class="screen-sub">Pick what matters most to you right now.</p>
+  <div class="goal-list">
+    <div class="goal-option" onclick="selectGoal(this)">🏠 Rent</div>
+    <div class="goal-option" onclick="selectGoal(this)">🚗 Car</div>
+    <div class="goal-option" onclick="selectGoal(this)">✨ Others</div>
+  </div>
+  <button class="btn-primary" onclick="goTo('s-savings-amount')">Let's go</button>
+</div>
+
+<!-- ═══ S20: CUSTOM SAVINGS AMOUNT (only if user declines recommendation) ═══ -->
+<div class="screen" id="s-savings-amount">
+  <button class="btn-back" onclick="goTo('s-savings-goal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <h2 class="screen-title">Okay, <span class="js-user-name">friend</span>, how much<br>do you want to save<br>per month?</h2>
+  <div class="field" style="margin-top:20px">
+    <div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" id="save-amount" placeholder="0 per month" inputmode="numeric"></div>
+    <p class="error-msg" id="err-save-amount">This field cannot be empty.</p>
+  </div>
+  <button class="btn-primary" onclick="validateCustomAmount()">Continue</button>
+</div>
+
+<!-- ═══ S20C: MONTHLY SAVINGS DAY ═══ -->
+<div class="screen" id="s-savings-date">
+  <button class="btn-back" onclick="goTo('s-savings-recommended')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <h2 class="screen-title">Which day should we<br>save each month?</h2>
+  <p class="screen-sub">We'll move <strong id="save-day-amt">₦0</strong> into your savings on this day, every month.</p>
+  <div class="field">
+    <label class="field-label">Day of the month</label>
+    <select id="save-day-select">
+      <option value="" disabled selected>Select a day</option>
+    </select>
+    <p class="error-msg" id="err-save-day">Please select a day of the month</p>
+  </div>
+  <div class="day-notice">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <p>If you choose the 31st, savings will be deducted on the last day of months that have fewer than 31 days.</p>
+  </div>
+  <button class="btn-primary" onclick="validateSaveDay()">Continue</button>
+</div>
+
+<!-- ═══ S20B: WHY WE NEED YOUR CARD (LOADING + TRUST) ═══ -->
+<div class="screen" id="s-card-why">
+  <div class="why-loading" id="why-loading">
+    <div class="why-spinner"></div>
+    <p class="why-loading-text">Getting things ready&hellip;</p>
+  </div>
+  <div class="why-content" id="why-content">
+    <div class="why-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
+    </div>
+    <h2 class="screen-title">Why do we need<br>your card?</h2>
+    <p class="screen-sub" style="margin-bottom:16px">We need your card so we can help you save <strong>before</strong> you have the urge to spend. We will never touch your funds without your consent.</p>
+    <div class="why-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+      <p>Before any action is taken with your money, we will always require you to input your passcode.</p>
+    </div>
+    <button class="btn-primary" onclick="goTo('s-link-card')">I understand</button>
+  </div>
+</div>
+
+<!-- ═══ S21: LINK CARD ═══ -->
+<div class="screen" id="s-link-card">
+  <button class="btn-back" onclick="goTo('s-savings-date')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <h2 class="screen-title">Hi <span class="js-user-name">friend</span>, let's link<br>your card.</h2>
+  <p class="screen-sub">We do this so we can help you save before you spend and keep you on track to reach your goals.</p>
+  <div class="field">
+    <label class="field-label">Card Name</label>
+    <div class="card-field-row">
+      <input type="text" id="card-name" placeholder="John Doe" autocomplete="cc-name">
+      <div class="card-hint-img"><svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="50" rx="6" fill="#0D1B2A"/><rect x="5" y="18" width="70" height="8" rx="2" fill="#1e3050"/><rect x="5" y="35" width="34" height="7" rx="1" fill="#B5FF4D" opacity="0.9"/><text x="6" y="40" font-size="4" fill="#0D1B2A" font-family="monospace" font-weight="bold">CARD HOLDER NAME</text></svg></div>
+    </div>
+    <p class="error-msg" id="err-card-name">This field must be filled</p>
+    <p class="error-msg" id="err-card-name-match">Name does not match</p>
+  </div>
+  <div class="field">
+    <label class="field-label">Card Number</label>
+    <div class="card-field-row">
+      <input type="text" id="card-number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" inputmode="numeric" oninput="formatCardNumber(this)">
+      <div class="card-hint-img"><svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="50" rx="6" fill="#0D1B2A"/><rect x="5" y="20" width="70" height="10" rx="2" fill="#B5FF4D" opacity="0.4"/><rect x="5" y="20" width="70" height="10" rx="2" fill="none" stroke="#B5FF4D" stroke-width="0.8"/><text x="8" y="28" font-size="4" fill="#B5FF4D" font-family="monospace">XXXX  XXXX  XXXX  XXXX</text></svg></div>
+    </div>
+    <p class="error-msg" id="err-card-number">This field must be filled</p>
+    <p class="error-msg" id="err-card-number-incomplete">Card number is incomplete</p>
+    <p class="error-msg" id="err-card-number-exists">This card already exists. Please check card details.</p>
+    <p class="error-msg" id="err-card-number-wrong">This is not correct. Please check card number again.</p>
+  </div>
+  <div class="field">
+    <label class="field-label">CVV</label>
+    <div class="card-field-row">
+      <input type="text" id="card-cvv" placeholder="XXX" maxlength="3" inputmode="numeric">
+      <div class="card-hint-img"><svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="50" rx="6" fill="#0D1B2A"/><rect x="0" y="10" width="80" height="12" fill="#111"/><rect x="10" y="28" width="44" height="10" rx="2" fill="#fff" opacity="0.1"/><rect x="56" y="26" width="18" height="14" rx="2" fill="#B5FF4D" opacity="0.5"/><text x="59" y="36" font-size="6" fill="#0D1B2A" font-family="monospace" font-weight="bold">CVV</text></svg></div>
+    </div>
+    <p class="error-msg" id="err-card-cvv">This field must be filled</p>
+  </div>
+  <div class="field">
+    <label class="field-label">Expiry Date</label>
+    <div class="card-field-row">
+      <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" inputmode="numeric" oninput="formatExpiry(this)">
+      <div class="card-hint-img"><svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="50" rx="6" fill="#0D1B2A"/><rect x="5" y="18" width="70" height="8" rx="2" fill="#1e3050"/><rect x="38" y="32" width="28" height="9" rx="1" fill="#B5FF4D" opacity="0.5"/><text x="40" y="39" font-size="5" fill="#0D1B2A" font-family="monospace" font-weight="bold">MM/YY</text></svg></div>
+    </div>
+    <p class="error-msg" id="err-card-expiry">This field must be filled</p>
+    <p class="error-msg" id="err-card-expiry-wrong">This date is not correct. Please confirm on your card.</p>
+  </div>
+  <button class="btn-primary" onclick="validateCard()">Link My Card</button>
+</div>
+
+<!-- ═══ S22: SAVINGS CONFIRM (PASSCODE) ═══ -->
+<div class="screen" id="s-savings-confirm">
+  <button class="btn-back" onclick="goTo('s-link-card')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <h2 class="screen-title">Confirm your<br>savings.</h2>
+  <p class="screen-sub">Enter your passcode</p>
+  <div class="passcode-grid" style="margin:28px 0">
+    <input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="cp1a">
+    <input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="cp1b">
+    <input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="cp1c">
+    <input class="pc-box" type="password" maxlength="1" inputmode="numeric" id="cp1d">
+  </div>
+  <p class="error-msg" id="err-confirm-passcode">Oops. Incorrect passcode entered. Please confirm your passcode.</p>
+  <p class="trial-counter" id="trial-counter"></p>
+  <button class="btn-primary" onclick="validateConfirmPasscode()">Confirm</button>
+</div>
+
+<!-- ═══ S23: SAVINGS SUCCESS ═══ -->
+<div class="screen" id="s-savings-success">
+  <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#B5FF4D" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>
+  <h2 class="success-title" style="text-align:center">Yes, <span class="js-user-name">friend</span>! 🎉<br><span style="background:var(--lime);padding:0 6px;border-radius:4px">You just saved Future<br><span class="js-user-name">You</span> some cash.</span></h2>
+  <p class="success-sub">Your future self will thank you soon.</p>
+  <button class="btn-primary" onclick="goHome()">Let's go home</button>
+</div>
+
+<!-- ═══ S24: HOME ═══ -->
+<div class="screen" id="s-home">
+  <div class="home-greeting"><span id="home-greet-time">Good morning</span>, <span style="background:var(--lime);padding:0 4px;border-radius:3px" class="js-user-name">friend</span> 👋</div>
+  <div class="home-balance-card">
+    <p class="home-balance-label">Savings Balance</p>
+    <p class="home-balance-amount" id="home-balance">₦0<span>.00</span></p>
+    <p class="home-balance-sub">Updated just now</p>
+  </div>
+  <div class="home-section-title">Budget Analysis</div>
+  <p class="screen-sub" style="margin-bottom:14px">Your expenses on a yearly basis.</p>
+  <div class="pie-wrap">
+    <canvas id="homePie" width="200" height="200"></canvas>
+    <div class="pie-legend" id="homeLegend"></div>
+  </div>
+  <div class="home-section-title" style="margin-top:20px">Savings Overview</div>
+  <div class="savings-overview-card">
+    <div class="sov-row"><span>Monthly target</span><span class="sov-amt" id="sov-target">₦0</span></div>
+    <div class="sov-row"><span>Saved this month</span><span class="sov-amt" id="sov-saved">₦0</span></div>
+    <div class="sov-progress-wrap"><div class="sov-progress-bar" style="width:100%"></div></div>
+    <p class="sov-caption" id="sov-caption">You hit your target this month 🎯</p>
+  </div>
+</div>
+
+<!-- ═══ S25: PROFILE ═══ -->
+<div class="screen" id="s-profile">
+  <button class="btn-back" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+  <div class="profile-avatar"><span id="profile-avatar-letter">?</span></div>
+  <p class="profile-name" id="profile-name-txt">Your Name</p>
+  <p class="profile-email" id="profile-email-txt">your@email.com</p>
+  <div class="profile-list">
+    <div class="profile-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account Settings</div>
+    <div class="profile-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17v-2m3 2v-4m3 4v-6M3 3h18v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3z"/></svg>Draw a Report</div>
+    <div class="profile-divider"></div>
+    <div class="profile-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>Frequently Asked Questions</div>
+    <div class="profile-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Help Center</div>
+    <div class="profile-divider"></div>
+    <div class="profile-row danger" onclick="goTo('s-signin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign Out</div>
+  </div>
+</div>
+
+</div><!-- /card -->
+</div><!-- /app -->
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottomNav">
+  <div class="bnav-item active" id="bnav-home" onclick="goHome()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </div>
+  <div class="bnav-item" id="bnav-save" onclick="goTo('s-savings-goal');setBottomNav('bnav-save')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+    <span>Save for Others</span>
+  </div>
+  <div class="bnav-item" id="bnav-profile" onclick="goTo('s-profile');setBottomNav('bnav-profile')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Profile</span>
+  </div>
+</div>
+
+<script>
+// ── USER STATE + PERSISTENCE ──
+const PW_KEY='pennywise_user';
+let user={};
+try{user=JSON.parse(localStorage.getItem(PW_KEY))||{};}catch(e){user={};}
+function saveUser(){try{localStorage.setItem(PW_KEY,JSON.stringify(user));}catch(e){}}
+function fmtN(n){return '₦'+Math.round(n||0).toLocaleString();}
+function refreshNameDisplays(){
+  const fn=user.firstName||'friend';
+  document.querySelectorAll('.js-user-name').forEach(el=>el.textContent=fn);
+  const pn=document.getElementById('profile-name-txt');
+  if(pn)pn.textContent=user.firstName?(user.firstName+' '+(user.surname||'')).trim():'Your Name';
+  const pe=document.getElementById('profile-email-txt');
+  if(pe)pe.textContent=user.email||'your@email.com';
+  const pa=document.getElementById('profile-avatar-letter');
+  if(pa)pa.textContent=(user.firstName||'?').charAt(0).toUpperCase();
+}
+function togglePw(id,btn){
+  const input=document.getElementById(id);
+  const showing=input.type==='text';
+  input.type=showing?'password':'text';
+  btn.querySelector('.eye-open').style.display=showing?'':'none';
+  btn.querySelector('.eye-closed').style.display=showing?'none':'';
+  btn.setAttribute('aria-label',showing?'Show password':'Hide password');
+}
+
+
+// ── SIGN IN ──
+function validateSignIn(){
+  const email=document.getElementById('si-email').value.trim();
+  const pw=document.getElementById('si-password').value;
+  let ok=true;
+  if(!email){showInputErr('si-email',true);showErr('err-si-email',true,'Your email cannot be empty');ok=false;}
+  else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showInputErr('si-email',true);showErr('err-si-email',true,"This email is not valid. Let's look at that again.");ok=false;}
+  else{showInputErr('si-email',false);showErr('err-si-email',false);}
+  if(!ok)return;
+  const registered=user&&user.email&&user.password;
+  const match=registered&&email.toLowerCase()===user.email.toLowerCase()&&pw===user.password;
+  if(!pw||!match){showInputErr('si-password',true);showErr('err-si-password',true,'This password is not correct.');return;}
+  showInputErr('si-password',false);showErr('err-si-password',false);
+  document.getElementById('si-password').value='';
+  if(user.saveAmount){goTo('s-home');}
+  else if(user.job){goTo('s-budget-all');}
+  else{goTo('s-onboard1');}
+}
+document.getElementById('si-email').addEventListener('input',()=>{showInputErr('si-email',false);showErr('err-si-email',false);});
+document.getElementById('si-password').addEventListener('input',()=>{showInputErr('si-password',false);showErr('err-si-password',false);});
+document.getElementById('forgotPopup').addEventListener('click',e=>{if(e.target.id==='forgotPopup')closeForgotPopup();});
+function openForgotPopup(){document.getElementById('forgotPopup').classList.add('open');}
+function closeForgotPopup(){document.getElementById('forgotPopup').classList.remove('open');}
+function recoverAccount(){
+  closeForgotPopup();
+  const email=document.getElementById('si-email').value.trim();
+  alert('A recovery link has been sent'+(email?' to '+email:' to your email')+'. Check your inbox to reset your password.');
+}
+function socialLogin(provider){
+  alert('Login by '+provider+' is coming soon. Please sign in with your email and password for now.');
+}
+
+// ── NAVIGATION ──
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  const homeScreens=['s-home','s-profile','s-savings-goal'];
+  document.getElementById('bottomNav').classList.toggle('visible', homeScreens.includes(id)||id==='s-savings-amount'&&false);
+  if(id==='s-budget-analysis'){updateAnalysisHeader();setTimeout(()=>{drawPie('budgetPie','pieLegend');buildSpenderList();buildReco();},50);}
+  if(id==='s-savings-recommended'){updateRecommendedScreen();}
+  if(id==='s-savings-date'){updateSaveDateScreen();}
+  if(id==='s-home'){document.getElementById('bottomNav').classList.add('visible');updateHomeScreen();setTimeout(()=>drawPie('homePie','homeLegend'),50);}
+  if(id==='s-profile'){document.getElementById('bottomNav').classList.add('visible');refreshNameDisplays();}
+}
+function updateHomeScreen(){
+  const amt=user.saveAmount||0;
+  const bal=document.getElementById('home-balance');
+  if(bal)bal.innerHTML=fmtN(amt)+'<span>.00</span>';
+  const t=document.getElementById('sov-target');if(t)t.textContent=fmtN(amt);
+  const s=document.getElementById('sov-saved');if(s)s.textContent=fmtN(amt);
+  const g=document.getElementById('home-greet-time');
+  if(g){const hr=new Date().getHours();g.textContent=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';}
+  const cap=document.getElementById('sov-caption');
+  if(cap&&user.saveDay)cap.textContent=`You hit your target this month 🎯 Next deduction: the ${ordinal(user.saveDay)}.`;
+  refreshNameDisplays();
+}
+function goHome(){goTo('s-home');setBottomNav('bnav-home');}
+function setBottomNav(id){
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── INIT ──
+(function(){
+  const today=new Date();
+  const max=today.toISOString().split('T')[0];
+  const min=new Date(today.getFullYear()-100,today.getMonth(),today.getDate()).toISOString().split('T')[0];
+  document.getElementById('dob').setAttribute('max',max);
+  document.getElementById('dob').setAttribute('min',min);
+  refreshNameDisplays();
+})();
+
+// ── UTILS ──
+function showErr(id,show,msg){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(show){if(msg)el.textContent=msg;el.classList.add('visible');}
+  else el.classList.remove('visible');
+}
+function showInputErr(inputId,show){
+  const el=document.getElementById(inputId);
+  if(!el)return;
+  el.classList.toggle('error-state',show);
+}
+
+// ── NAME ──
+function validateName(){
+  const fn=document.getElementById('firstName').value.trim();
+  const sn=document.getElementById('surname').value.trim();
+  let ok=true;
+  showInputErr('firstName',!fn); showErr('err-firstName',!fn,'Type your first name'); if(!fn)ok=false;
+  showInputErr('surname',!sn); showErr('err-surname',!sn,'Surname cannot be empty'); if(!sn)ok=false;
+  if(ok){user.firstName=fn;user.surname=sn;saveUser();refreshNameDisplays();goTo('s-dob');}
+}
+
+// ── GENDER ──
+let selectedGender='';
+function selectGender(el){
+  document.querySelectorAll('.gender-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedGender=el.dataset.val;
+  const ow=document.getElementById('genderOtherWrap');
+  selectedGender==='other'?ow.classList.add('visible'):ow.classList.remove('visible');
+  showErr('err-gender',false);
+}
+
+// ── DOB + GENDER ──
+function validateDobGender(){
+  const dob=document.getElementById('dob').value;
+  let ok=true;
+  showInputErr('dob',!dob); showErr('err-dob',!dob,'You must pick a birthdate.'); if(!dob)ok=false;
+  if(!selectedGender){showErr('err-gender',true,'You must pick one gender');ok=false;}else showErr('err-gender',false);
+  if(selectedGender==='other'&&!document.getElementById('genderOther').value.trim()){
+    showErr('err-gender',true,'Please type your gender');ok=false;
+  }
+  if(ok)goTo('s-contact');
+}
+
+// ── CONTACT ──
+function validateContact(){
+  const phone=document.getElementById('phone').value.trim();
+  const email=document.getElementById('email').value.trim();
+  let ok=true;
+  const pw=document.getElementById('phoneWrap');
+  if(!phone){pw.classList.add('error-state');showErr('err-phone',true,'This phone number cannot be empty');ok=false;}
+  else if(phone.replace(/\D/g,'').length<10){pw.classList.add('error-state');showErr('err-phone',true,'This phone number must be at least 10 digits');ok=false;}
+  else{pw.classList.remove('error-state');showErr('err-phone',false);}
+  if(!email){showInputErr('email',true);showErr('err-email',true,'This email cannot be empty');ok=false;}
+  else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showInputErr('email',true);showErr('err-email',true,'This email is incorrect');ok=false;}
+  else{showInputErr('email',false);showErr('err-email',false);}
+  if(ok){user.phone=phone;user.email=email;saveUser();refreshNameDisplays();goTo('s-password');}
+}
+
+// ── PASSWORD ──
+function checkPassword(val){
+  const rules={'r-len':val.length>=8,'r-upper':/[A-Z]/.test(val),'r-lower':/[a-z]/.test(val),'r-symbol':/[^A-Za-z0-9]/.test(val),'r-num':/[0-9]/.test(val)};
+  Object.entries(rules).forEach(([id,met])=>document.getElementById(id).classList.toggle('met',met));
+}
+function passwordStrong(val){return val.length>=8&&/[A-Z]/.test(val)&&/[a-z]/.test(val)&&/[^A-Za-z0-9]/.test(val)&&/[0-9]/.test(val);}
+function validatePassword(){
+  const pw=document.getElementById('password').value;
+  const cpw=document.getElementById('confirmPassword').value;
+  if(!passwordStrong(pw)){showErr('err-password',true,'Please meet all password requirements above');return;}
+  if(pw!==cpw){showErr('err-password',true,'Passwords do not match. Check your passwords.');return;}
+  showErr('err-password',false);
+  user.password=pw;saveUser();
+  goTo('s-passcode');
+}
+
+// ── PASSCODE (signup) ──
+(function(){
+  ['pc1a','pc1b','pc1c','pc1d','pc2a','pc2b','pc2c','pc2d'].forEach((id,i,arr)=>{
+    const el=document.getElementById(id);
+    el.addEventListener('input',()=>{if(el.value&&i<arr.length-1)document.getElementById(arr[i+1]).focus();});
+    el.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!el.value&&i>0)document.getElementById(arr[i-1]).focus();});
+  });
+})();
+function getPC(prefix){return['a','b','c','d'].map(l=>document.getElementById(prefix+l).value).join('');}
+function validatePasscode(){
+  const p1=getPC('pc1'),p2=getPC('pc2');
+  if(p1.length<4){['pc1a','pc1b','pc1c','pc1d'].forEach(id=>document.getElementById(id).classList.add('error-state'));showErr('err-passcode',true,'Please enter a 4-digit passcode');return;}
+  if(p1!==p2){['pc2a','pc2b','pc2c','pc2d'].forEach(id=>document.getElementById(id).classList.add('error-state'));showErr('err-passcode',true,'Passcodes do not match');return;}
+  ['pc2a','pc2b','pc2c','pc2d'].forEach(id=>document.getElementById(id).classList.remove('error-state'));
+  showErr('err-passcode',false);
+  user.passcode=p1;saveUser();
+  goTo('s-success');
+}
+
+// ── ONBOARDING 1 ──
+function validateOnboard1(){
+  const job=document.getElementById('job').value.trim();
+  const inc=document.getElementById('income').value.trim();
+  let ok=true;
+  showInputErr('job',!job);showErr('err-job',!job,'This field must be filled');if(!job)ok=false;
+  if(!inc){showErr('err-income',true,'This field must be filled');ok=false;}else showErr('err-income',false);
+  if(ok){user.job=job;user.income=parseFloat(inc.replace(/[^0-9.]/g,''))||0;saveUser();goTo('s-budget-all');}
+}
+
+// ── SINGLE-PAGE BUDGET: helpers ──
+function numVal(id){const el=document.getElementById(id);return parseFloat((el.value||'').replace(/[^0-9.]/g,''));}
+function freqVal(name){const r=document.querySelector(`input[name="${name}"]:checked`);return r?r.value:null;}
+function annualize(amount,freq){
+  if(freq==='day')return amount*365;
+  if(freq==='month')return amount*12;
+  if(freq==='year')return amount;
+  return amount*12;
+}
+
+// ── OTHER EXPENSES ──
+function addExpenseRow(){
+  const list=document.getElementById('other-expenses-list');
+  const row=document.createElement('div');row.className='other-row';
+  row.innerHTML=`<div class="field" style="flex:1;margin-bottom:0"><input type="text" class="oe-name" placeholder="Spending"></div><div class="field" style="flex:1;margin-bottom:0"><div class="naira-wrap"><span class="naira-prefix">₦</span><input type="text" class="oe-amount" placeholder="Amount" inputmode="numeric"></div></div><div class="of-wrap"><select class="other-freq-select oe-freq"><option value="" disabled selected>Per…</option><option value="day">Per Day</option><option value="month">Per Month</option></select></div>`;
+  list.appendChild(row);
+}
+
+// ── SINGLE-PAGE BUDGET VALIDATION + CALCULATION ──
+function validateBudgetAll(){
+  let ok=true;
+  const cats=[
+    {label:'Food',    input:'food-amount',       freq:'food-freq',      errAmt:'err-food-amount',      errFreq:'err-food-freq'},
+    {label:'Transport',input:'transport-amount', freq:'transport-freq', errAmt:'err-transport-amount', errFreq:'err-transport-freq'},
+    {label:'Provisions',input:'provisions-amount',freq:'prov-freq',     errAmt:'err-prov-amount',      errFreq:'err-prov-freq'},
+    {label:'Electricity',input:'electricity-amount',freq:'elec-freq',   errAmt:'err-elec-amount',      errFreq:'err-elec-freq'},
+    {label:'Water',   input:'water-amount',      freq:'water-freq',     errAmt:'err-water-amount',     errFreq:'err-water-freq'},
+    {label:'Rent',    input:'rent-amount',       freq:'rent-freq',      errAmt:'err-rent-amount',      errFreq:'err-rent-freq'},
+  ];
+  let firstBad=null;
+  const budget=[];
+  cats.forEach(c=>{
+    const amt=numVal(c.input);
+    const fr=freqVal(c.freq);
+    const amtBad=isNaN(amt);
+    showInputErr(c.input,amtBad);showErr(c.errAmt,amtBad,'This field must be filled');
+    showErr(c.errFreq,!fr,'Please select one');
+    if(amtBad||!fr){ok=false;if(!firstBad)firstBad=c.input;return;}
+    budget.push({label:c.label,annual:annualize(amt,fr),entered:amt,freq:fr});
+  });
+  // other expenses: name+amount rows must also pick a frequency
+  let otherFreqBad=false;
+  document.querySelectorAll('#other-expenses-list .other-row').forEach(row=>{
+    const name=row.querySelector('.oe-name').value.trim();
+    const amt=parseFloat((row.querySelector('.oe-amount').value||'').replace(/[^0-9.]/g,''));
+    const sel=row.querySelector('.oe-freq');
+    const fr=sel.value;
+    if(!name&&isNaN(amt))return; // fully empty row: skip
+    if(!fr){otherFreqBad=true;sel.classList.add('error-state');return;}
+    sel.classList.remove('error-state');
+    if(!isNaN(amt)&&amt>0)budget.push({label:name||'Other',annual:annualize(amt,fr),entered:amt,freq:fr});
+  });
+  showErr('err-other-freq',otherFreqBad,'Please select Per Day or Per Month for each other expense');
+  if(otherFreqBad)ok=false;
+  if(!ok){if(firstBad)document.getElementById(firstBad).scrollIntoView({behavior:'smooth',block:'center'});return;}
+  user.budget=budget.filter(b=>b.annual>0);
+  saveUser();
+  goTo('s-budget-analysis');
+}
+
+// ── PIE CHART DATA (built from the user\'s own inputs) ──
+const PIE_COLORS=['#EF4444','#F97316','#EAB308','#84CC16','#38BDF8','#A78BFA','#34D399','#F472B6','#FB923C','#60A5FA','#2DD4BF','#C084FC'];
+let budgetData=[];
+function rebuildBudgetData(){
+  budgetData=(user.budget||[])
+    .slice()
+    .sort((a,b)=>b.annual-a.annual)
+    .map((b,i)=>({label:b.label,amount:b.annual,color:PIE_COLORS[i%PIE_COLORS.length]}));
+}
+function updateAnalysisHeader(){
+  const line=document.getElementById('analysisIncomeLine');
+  if(!line)return;
+  const inc=user.income||0;
+  line.innerHTML=`At <strong>${fmtN(inc)}</strong> per month, you earn <strong>${fmtN(inc*12)}</strong> per year.`;
+}
+let highlightedItem=null;
+
+function drawPie(canvasId,legendId){
+  rebuildBudgetData();
+  const canvas=document.getElementById(canvasId);if(!canvas)return;
+  const legendEl=document.getElementById(legendId);
+  const ctx=canvas.getContext('2d');
+  const total=budgetData.reduce((s,d)=>s+d.amount,0);
+  if(!total){ctx.clearRect(0,0,canvas.width,canvas.height);if(legendEl)legendEl.innerHTML='<p style="font-size:13px;color:#5B6B7B">No budget data yet — complete the expense questions to see your chart.</p>';return;}
+  let angle=-Math.PI/2;
+  const cx=canvas.width/2,cy=canvas.height/2,r=Math.min(cx,cy)-10;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  budgetData.forEach(d=>{
+    const slice=(d.amount/total)*2*Math.PI;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,angle,angle+slice);ctx.closePath();
+    ctx.fillStyle=d.color;ctx.fill();
+    angle+=slice;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,r*0.52,0,2*Math.PI);ctx.fillStyle='#fff';ctx.fill();
+  const legend=document.getElementById(legendId);if(!legend)return;
+  legend.innerHTML=budgetData.map((d,i)=>`<div class="legend-item${highlightedItem===i?' highlighted':''}" onclick="highlightItem(${i},'${canvasId}','${legendId}')"><div class="legend-dot" style="background:${d.color}"></div><span>${d.label}</span><span style="margin-left:auto;color:#0D1B2A;font-weight:600;">₦${d.amount.toLocaleString()}</span></div>`).join('');
+}
+
+function buildSpenderList(){
+  rebuildBudgetData();
+  const list=document.getElementById('spenderList');if(!list)return;
+  if(!budgetData.length){list.innerHTML='<p style="font-size:13px;color:#5B6B7B">No spending recorded yet.</p>';return;}
+  list.innerHTML=budgetData.slice(0,4).map((d,i)=>`<div class="spender-row" id="spender-${i}" onclick="highlightItemFromSpender(${i})"><span>${d.label}</span><span class="spender-amt">₦${d.amount.toLocaleString()}/yr</span></div>`).join('');
+}
+
+// ── PERSONALIZED RECOMMENDATIONS (driven by the user\'s highest categories) ──
+function buildReco(){
+  rebuildBudgetData();
+  const el=document.getElementById('recoText');if(!el)return;
+  if(!budgetData.length){el.textContent='Complete your expense questions and we\'ll recommend where you can save.';return;}
+  const recoMap={
+    'rent':(i)=>`consider <span class="lime-link" onclick="highlightItemFromSpender(${i})">reviewing your rent arrangement</span> — a house share or relocation could free up significant cash`,
+    'food':(i)=>`you can cut down on <span class="lime-link" onclick="highlightItemFromSpender(${i})">food costs</span> by meal prepping at home a few times a week`,
+    'transport':(i)=>`consider cutting down on <span class="lime-link" onclick="highlightItemFromSpender(${i})">transport</span> by carpooling or using cheaper ride options`,
+    'provisions':(i)=>`buying <span class="lime-link" onclick="highlightItemFromSpender(${i})">provisions and household essentials</span> in bulk could bring this cost down`,
+    'electricity':(i)=>`you could trim <span class="lime-link" onclick="highlightItemFromSpender(${i})">electricity</span> by switching to energy-saving bulbs and unplugging idle appliances`,
+    'water':(i)=>`small changes could reduce your <span class="lime-link" onclick="highlightItemFromSpender(${i})">water</span> costs`,
+  };
+  const top=budgetData.slice(0,3);
+  const texts=top.map((d,i)=>{
+    const fn=recoMap[d.label.toLowerCase()];
+    if(fn)return fn(i);
+    const tenPct=Math.round(d.amount*0.1);
+    return `<span class="lime-link" onclick="highlightItemFromSpender(${i})">${d.label}</span> is one of your biggest costs — cutting it by just 10% frees up ${fmtN(tenPct)} a year`;
+  });
+  el.innerHTML='Based on your highest spending categories: '+texts.join('; and ')+'.';
+}
+
+function highlightItem(i,canvasId,legendId){
+  highlightedItem=(highlightedItem===i)?null:i;
+  drawPie(canvasId,legendId);
+  document.querySelectorAll('.spender-row').forEach((r,idx)=>r.classList.toggle('highlighted',idx===highlightedItem));
+}
+function highlightItemFromSpender(i){
+  highlightedItem=i;
+  drawPie('budgetPie','pieLegend');
+  document.querySelectorAll('.spender-row').forEach((r,idx)=>r.classList.toggle('highlighted',idx===i));
+  document.getElementById('budgetPie').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ── SAVINGS FLOW ──
+function recommendedSavings(){return Math.round((user.income||0)*0.10);}
+function updateRecommendedScreen(){
+  const amt=recommendedSavings();
+  const t=document.getElementById('rec-amt-title');if(t)t.textContent=fmtN(amt);
+  const b=document.getElementById('rec-amt-btn');if(b)b.textContent=fmtN(amt);
+}
+function acceptRecommendedSavings(){
+  user.saveAmount=recommendedSavings();
+  saveUser();
+  goTo('s-savings-date'); // straight to picking the day — no duplicate amount screen
+}
+function validateCustomAmount(){
+  const raw=document.getElementById('save-amount').value.trim();
+  const amt=parseFloat(raw.replace(/[^0-9.]/g,''));
+  if(!raw||isNaN(amt)||amt<=0){showErr('err-save-amount',true,'This field cannot be empty.');return;}
+  showErr('err-save-amount',false);
+  user.saveAmount=amt;
+  saveUser();
+  goTo('s-savings-date');
+}
+function ordinal(n){
+  const s=['th','st','nd','rd'],v=n%100;
+  return n+(s[(v-20)%10]||s[v]||s[0]);
+}
+function updateSaveDateScreen(){
+  const amtEl=document.getElementById('save-day-amt');
+  if(amtEl)amtEl.textContent=fmtN(user.saveAmount||0);
+  const sel=document.getElementById('save-day-select');
+  if(sel&&sel.options.length<=1){
+    for(let d=1;d<=31;d++){
+      const o=document.createElement('option');
+      o.value=d;o.textContent=ordinal(d);
+      sel.appendChild(o);
+    }
+  }
+  if(sel&&user.saveDay)sel.value=user.saveDay;
+}
+function validateSaveDay(){
+  const sel=document.getElementById('save-day-select');
+  if(!sel.value){sel.classList.add('error-state');showErr('err-save-day',true,'Please select a day of the month');return;}
+  sel.classList.remove('error-state');
+  showErr('err-save-day',false);
+  user.saveDay=parseInt(sel.value);
+  saveUser();
+  showCardWhy();
+}
+
+// ── WHY CARD INTERSTITIAL ──
+function showCardWhy(){
+  goTo('s-card-why');
+  const load=document.getElementById('why-loading');
+  const content=document.getElementById('why-content');
+  content.classList.remove('show');
+  load.classList.add('show');
+  setTimeout(()=>{
+    load.classList.remove('show');
+    content.classList.add('show');
+  },1600);
+}
+
+// ── CARD FORMATTERS ──
+function formatCardNumber(input){let v=input.value.replace(/\D/g,'').substring(0,16);input.value=v.replace(/(.{4})/g,'$1 ').trim();}
+function formatExpiry(input){let v=input.value.replace(/\D/g,'');if(v.length>=3)v=v.substring(0,2)+'/'+v.substring(2,4);input.value=v;}
+
+// ── CARD VALIDATION ──
+function validateCard(){
+  const name=document.getElementById('card-name').value.trim();
+  const num=document.getElementById('card-number').value.replace(/\s/g,'');
+  const cvv=document.getElementById('card-cvv').value.trim();
+  const exp=document.getElementById('card-expiry').value.trim();
+  let ok=true;
+  // Hide all card errors first
+  ['err-card-name','err-card-name-match','err-card-number','err-card-number-incomplete','err-card-number-exists','err-card-number-wrong','err-card-cvv','err-card-expiry','err-card-expiry-wrong'].forEach(id=>showErr(id,false));
+  if(!name){showInputErr('card-name',true);showErr('err-card-name',true,'This field must be filled');ok=false;}else showInputErr('card-name',false);
+  if(!num){showInputErr('card-number',true);showErr('err-card-number',true,'This field must be filled');ok=false;}
+  else if(num.length<16){showInputErr('card-number',true);showErr('err-card-number-incomplete',true,'Card number is incomplete');ok=false;}
+  else{showInputErr('card-number',false);}
+  if(!cvv){showInputErr('card-cvv',true);showErr('err-card-cvv',true,'This field must be filled');ok=false;}else showInputErr('card-cvv',false);
+  if(!exp){showInputErr('card-expiry',true);showErr('err-card-expiry',true,'This field must be filled');ok=false;}
+  else{
+    const parts=exp.split('/');
+    const m=parseInt(parts[0]),y=parseInt(parts[1]);
+    if(!parts[1]||m<1||m>12||y<24){showInputErr('card-expiry',true);showErr('err-card-expiry-wrong',true,'This date is not correct. Please confirm on your card.');ok=false;}
+    else showInputErr('card-expiry',false);
+  }
+  if(ok)goTo('s-savings-confirm');
+}
+
+// ── CONFIRMATION PASSCODE + TRIAL COUNTER ──
+let trialsLeft=4;
+(function(){
+  ['cp1a','cp1b','cp1c','cp1d'].forEach((id,i,arr)=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.addEventListener('input',()=>{if(el.value&&i<arr.length-1)document.getElementById(arr[i+1]).focus();});
+    el.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!el.value&&i>0)document.getElementById(arr[i-1]).focus();});
+  });
+})();
+function validateConfirmPasscode(){
+  const entered=['cp1a','cp1b','cp1c','cp1d'].map(id=>document.getElementById(id).value).join('');
+  const correct=user.passcode||getPC('pc1');// persisted passcode from signup
+  if(entered.length<4){['cp1a','cp1b','cp1c','cp1d'].forEach(id=>document.getElementById(id).classList.add('error-state'));showErr('err-confirm-passcode',true,'Oops. Incorrect passcode entered. Please confirm your passcode.');return;}
+  if(entered!==correct&&correct.length===4){
+    trialsLeft=Math.max(0,trialsLeft-1);
+    ['cp1a','cp1b','cp1c','cp1d'].forEach(id=>{document.getElementById(id).classList.add('error-state');document.getElementById(id).value='';});
+    document.getElementById('cp1a').focus();
+    showErr('err-confirm-passcode',true,'Oops. Incorrect passcode entered. Please confirm your passcode.');
+    const tc=document.getElementById('trial-counter');
+    tc.textContent=`You have ${trialsLeft} trial${trialsLeft===1?'':'s'} left.`;
+    tc.classList.add('visible');
+    return;
+  }
+  ['cp1a','cp1b','cp1c','cp1d'].forEach(id=>document.getElementById(id).classList.remove('error-state'));
+  showErr('err-confirm-passcode',false);
+  document.getElementById('trial-counter').classList.remove('visible');
+  trialsLeft=4;
+  goTo('s-savings-success');
+}
+
+// ── GOAL ──
+function selectGoal(el){document.querySelectorAll('.goal-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');}
+
+// ── STAR RATING ──
+function rateStar(n){
+  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<n));
+  const msgs=['','Hmm, noted. More work to do 😅','Getting there! 🙏','Good stuff! 👍','Really nice! 🔥','Absolutely love it! 🚀'];
+  document.getElementById('rateFeedback').textContent=msgs[n];
+}
+</script>
+</body>
+</html>
