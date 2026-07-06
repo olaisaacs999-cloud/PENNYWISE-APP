@@ -1436,11 +1436,10 @@ function rateStar(n){
 }
 </script>
   
-//Auto-navigate to screen fromURL parameter
-  (function(){
-  const p = new urlsearchparams(window.location.search).get('screen'); 
-  if(p) 
-  goTo(p);
-  })();
-</body>
+// Auto-navigate to screen from URL parameter
+(function(){
+  const p = new URLSearchParams(window.location.search).get('screen');
+  if(p) goTo(p);
+})();
+  </body>
 </html>
