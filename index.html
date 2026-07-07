@@ -1031,7 +1031,10 @@ function goTo(id){
   if(id==='s-savings-date'){updateSaveDateScreen();}
   if(id==='s-home'){document.getElementById('bottomNav').classList.add('visible');updateHomeScreen();setTimeout(()=>drawPie('homePie','homeLegend'),50);}
   if(id==='s-profile'){document.getElementById('bottomNav').classList.add('visible');refreshNameDisplays();}
+if(id==='s-profile'){document.getElementById('bottomNav').classList.add('visible');refreshNameDisplays();}
+  if(id==='s-dob'){const dob=document.getElementById('dob');const today=new Date();dob.setAttribute('max',today.toISOString().split('T')[0]);dob.setAttribute('min',new Date(today.getFullYear()-130,today.getMonth(),today.getDate()).toISOString().split('T')[0]);}
 }
+  
 function updateHomeScreen(){
   const amt=user.saveAmount||0;
   const bal=document.getElementById('home-balance');
@@ -1052,11 +1055,14 @@ function setBottomNav(id){
 
 // ── INIT ──
 (function(){
-  const today=new Date();
-  const max=today.toISOString().split('T')[0];
-  const min=new Date(today.getFullYear()-100,today.getMonth(),today.getDate()).toISOString().split('T')[0];
-  document.getElementById('dob').setAttribute('max',max);
-  document.getElementById('dob').setAttribute('min',min);
+  function initDob(){
+    const dob=document.getElementById('dob');
+    if(!dob)return;
+    const today=new Date();
+    dob.setAttribute('max',today.toISOString().split('T')[0]);
+    dob.setAttribute('min',new Date(today.getFullYear()-130,today.getMonth(),today.getDate()).toISOString().split('T')[0]);
+  }
+  initDob();
   refreshNameDisplays();
 })();
 
